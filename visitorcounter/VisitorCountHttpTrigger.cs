@@ -28,6 +28,8 @@ namespace Crc.Function
         
         private async Task<VisitorCount> GetVisitorCountAsync(FunctionContext executionContext)
         {            
+            // test comment
+            
             var keyVaultClient = GetSecretClient();
             var cosmosDbUri = keyVaultClient.GetSecret("CosmosDbUri");
             var cosmosDbPrimaryKey = keyVaultClient.GetSecret("CosmosDbPrimaryKey");
