@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Cosmos;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Identity;
 
 namespace Crc.Function
 {
@@ -26,12 +27,14 @@ namespace Crc.Function
         }
         
         private async Task<VisitorCount> GetVisitorCountAsync(FunctionContext executionContext)
-        {
-            // todo: retrieve the connection string from the Key Vault 
+        {            
+            var keyVaultClient = GetSecretClient();
+            var cosmosDbUri = keyVaultClient.GetSecret("CosmosDbUri");
+            var cosmosDbPrimaryKey = keyVaultClient.GetSecret("CosmosDbPrimaryKey");
             
             var cosmosClient = new CosmosClient(
-                "", 
-                ""                
+                cosmosDbUri.Value.Value, 
+                cosmosDbPrimaryKey.Value.Value                
             );
 
             var container = cosmosClient.GetContainer("VisitorCountDb", "VisitorCountContainer");
@@ -47,6 +50,11 @@ namespace Crc.Function
 
             return visitorCount;            
         }
+
+        private SecretClient GetSecretClient() {
+            return new SecretClient(new Uri("https://keyvaultcrcjen.vault.azure.net/"), 
+                new DefaultAzureCredential());
+        } 
     }
 
     public class VisitorCount 
