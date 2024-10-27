@@ -3,6 +3,9 @@ name: Deploy Azure Function
 on:
   push:
     branches: ["main"]
+
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
     
 jobs:
   build-and-deploy:
